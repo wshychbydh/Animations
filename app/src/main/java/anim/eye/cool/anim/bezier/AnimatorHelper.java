@@ -7,10 +7,14 @@ import android.graphics.PointF;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AnticipateInterpolator;
 import android.view.animation.AnticipateOvershootInterpolator;
+import android.view.animation.BounceInterpolator;
+import android.view.animation.CycleInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
+import android.view.animation.OvershootInterpolator;
 
 import java.util.Random;
 
@@ -24,17 +28,19 @@ public class AnimatorHelper {
     public static final String SCALE_X = "scaleX";
     public static final String SCALE_Y = "scaleY";
     public static final String ROTATION = "rotation";
+    public static final String ROTATION_X = "rotationX";
+    public static final String ROTATION_Y = "rotationY";
 
     public static AnimatorSet getAnimatorSet(BezierLayout container, View itemView, Random random) {
         // 1.alpha动画
-        ObjectAnimator alpha = ObjectAnimator.ofFloat(itemView, ALPHA, 0.1f, 1f);
+        ObjectAnimator alpha = ObjectAnimator.ofFloat(itemView, ALPHA, 0.5f, 1f);
         // 2.缩放动画
-        ObjectAnimator scaleX = ObjectAnimator.ofFloat(itemView, SCALE_X, 0.1f, 1f);
-        ObjectAnimator scaleY = ObjectAnimator.ofFloat(itemView, SCALE_Y, 0.1f, 1f);
+        ObjectAnimator scaleX = ObjectAnimator.ofFloat(itemView, SCALE_X, 0.5f, 1f);
+        ObjectAnimator scaleY = ObjectAnimator.ofFloat(itemView, SCALE_Y, 0.5f, 1f);
         // 3.旋转
         ObjectAnimator rotate = ObjectAnimator.ofFloat(itemView, ROTATION, 0f, 360f);
         AnimatorSet set = new AnimatorSet();
-        set.setDuration(2000);
+        set.setDuration(1500);
         // 同时执行4个动画
         set.playTogether(alpha, scaleX, scaleY, rotate);
         set.setTarget(itemView);
@@ -42,9 +48,14 @@ public class AnimatorHelper {
         // 4.贝塞尔曲线动画
         ValueAnimator bezierAnimator = getBezierAnimator(container, itemView, random);
         AnimatorSet bezierSet = new AnimatorSet();
-        bezierSet.playTogether(set, bezierAnimator);
         // 序列执行
         // bezierSet.playSequentially(set, bezierAnimator);
+        //在..之前执行
+        // bezierSet.play(set).before(bezierAnimator);
+        //bezierSet.play(bezierAnimator).after(set);
+        //一起执行
+        bezierSet.playTogether(set, bezierAnimator);
+
         //设置加速因子
         bezierSet.setInterpolator(InterpolatorSets.getInterpolator(random));
         bezierSet.setTarget(itemView);
@@ -71,7 +82,8 @@ public class AnimatorHelper {
                 PointF pointF = (PointF) animation.getAnimatedValue();
                 itemView.setX(pointF.x);
                 itemView.setY(pointF.y);
-                itemView.setRotation(360 * animation.getAnimatedFraction());
+                itemView.setRotationX(360 * animation.getAnimatedFraction());
+                itemView.setRotationY(180 * animation.getAnimatedFraction());
                 itemView.setAlpha(animation.getAnimatedFraction());
             }
         });
@@ -82,9 +94,11 @@ public class AnimatorHelper {
 
 
     private enum InterpolatorSets {
-        ACC(new AccelerateInterpolator()), DEC(new DecelerateInterpolator()),
-        LINE(new LinearInterpolator()), ACC_DEC(new AccelerateDecelerateInterpolator()),
-        AOI(new AnticipateOvershootInterpolator());
+        ACCELERATE(new AccelerateInterpolator()), DECELERATE(new DecelerateInterpolator()),
+        LINEAR(new LinearInterpolator()), ACCELERATE_DECELERATE(new AccelerateDecelerateInterpolator()),
+        ANTICIPATE_OVERSHOOT(new AnticipateOvershootInterpolator()), CYCLE(new CycleInterpolator(-1)),
+        OVERSHOOT(new OvershootInterpolator()), BOUNCE(new BounceInterpolator()),
+        ANTICIPATE(new AnticipateInterpolator());
 
         InterpolatorSets(Interpolator interpolator) {
             this.mInterpolator = interpolator;

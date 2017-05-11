@@ -1,10 +1,10 @@
-package anim.eye.cool.anim;
+package anim.eye.cool.anim.bezier;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 
-import anim.eye.cool.anim.bezier.BezierLayout;
+import anim.eye.cool.anim.R;
 
 /**
  * Created by cool on 17-5-10.
