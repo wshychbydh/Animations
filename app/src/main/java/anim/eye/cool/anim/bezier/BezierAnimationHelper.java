@@ -4,7 +4,6 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.graphics.PointF;
-import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AnticipateInterpolator;
@@ -22,7 +21,7 @@ import java.util.Random;
  * Created by cool on 17-5-10.
  */
 
-public class AnimatorHelper {
+public final class BezierAnimationHelper {
 
     public static final String ALPHA = "alpha";
     public static final String SCALE_X = "scaleX";
@@ -31,64 +30,61 @@ public class AnimatorHelper {
     public static final String ROTATION_X = "rotationX";
     public static final String ROTATION_Y = "rotationY";
 
-    public static AnimatorSet getAnimatorSet(BezierLayout container, View itemView, Random random) {
+    public static AnimatorSet getAnimatorSet(BezierView bezierView, Random random) {
         // 1.alpha动画
-        ObjectAnimator alpha = ObjectAnimator.ofFloat(itemView, ALPHA, 0.5f, 1f);
+        ObjectAnimator alpha = ObjectAnimator.ofFloat(bezierView.getView(), ALPHA, 0.5f, 1f);
         // 2.缩放动画
-        ObjectAnimator scaleX = ObjectAnimator.ofFloat(itemView, SCALE_X, 0.5f, 1f);
-        ObjectAnimator scaleY = ObjectAnimator.ofFloat(itemView, SCALE_Y, 0.5f, 1f);
+        ObjectAnimator scaleX = ObjectAnimator.ofFloat(bezierView.getView(), SCALE_X, 0.5f, 1f);
+        ObjectAnimator scaleY = ObjectAnimator.ofFloat(bezierView.getView(), SCALE_Y, 0.5f, 1f);
         // 3.旋转
-        ObjectAnimator rotate = ObjectAnimator.ofFloat(itemView, ROTATION, 0f, 360f);
+        ObjectAnimator rotate = ObjectAnimator.ofFloat(bezierView.getView(), ROTATION, 0f, 360f);
         AnimatorSet set = new AnimatorSet();
-        set.setDuration(1500);
-        // 同时执行4个动画
+        set.setDuration(bezierView.getDuration() / 2);
+        // 同时执行以上4个动画
         set.playTogether(alpha, scaleX, scaleY, rotate);
-        set.setTarget(itemView);
+        set.setTarget(bezierView.getView());
 
         // 4.贝塞尔曲线动画
-        ValueAnimator bezierAnimator = getBezierAnimator(container, itemView, random);
+        ValueAnimator bezierAnimator = getBezierAnimator(bezierView);
         AnimatorSet bezierSet = new AnimatorSet();
         // 序列执行
         // bezierSet.playSequentially(set, bezierAnimator);
-        //在..之前执行
+        // 在..之前执行
         // bezierSet.play(set).before(bezierAnimator);
         //bezierSet.play(bezierAnimator).after(set);
-        //一起执行
+        // 一起执行
         bezierSet.playTogether(set, bezierAnimator);
 
-        //设置加速因子
+        //设置随机加速因子
         bezierSet.setInterpolator(InterpolatorSets.getInterpolator(random));
-        bezierSet.setTarget(itemView);
+        bezierSet.setTarget(bezierView.getView());
         return bezierSet;
     }
 
-    private static ValueAnimator getBezierAnimator(BezierLayout container, final View itemView, Random random) {
-        // 贝塞尔曲线的4个点(不断修改ImageView的坐标-PointF)
-        PointF pointF0 = new PointF((container.getMeasuredWidth() - itemView.getMeasuredWidth()) / 2,
-                container.getMeasuredHeight() - itemView.getMeasuredHeight());
-        PointF pointF1 = getPointF(container, 1, random);
-        PointF pointF2 = getPointF(container, 2, random);
-        PointF pointF3 = new PointF(random.nextInt(container.getMeasuredWidth()), 0);
+    private static ValueAnimator getBezierAnimator(final BezierView bezierView) {
 
-        // 估值器Evaluator，来控制view的行驶路径(不断修改pointF.x,pointF.y)
-        BezierEvaluator evaluator = new BezierEvaluator(pointF1, pointF2);
         // 属性动画不仅仅可以改变view的属性，还可以改变自定义的属性
-        ValueAnimator animator = ValueAnimator.ofObject(evaluator, pointF0,
-                pointF3);
+        // 根据不同的估值器可以得到不同的动画效果
+        //ValueAnimator animator = ValueAnimator.ofObject(new PointFEvaluator(new PointF(0, 600)), bezierView.getPointF()[0],
+        //       bezierView.getPointF()[3]);
+        // 估值器Evaluator，来控制view的行驶路径(不断修改pointF.x,pointF.y)
+        ValueAnimator animator = ValueAnimator.ofObject(new BezierEvaluator(bezierView.getPointF()[1],
+                bezierView.getPointF()[2]), bezierView.getPointF()[0], bezierView.getPointF()[3]);
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
 
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 PointF pointF = (PointF) animation.getAnimatedValue();
-                itemView.setX(pointF.x);
-                itemView.setY(pointF.y);
-                itemView.setRotationX(360 * animation.getAnimatedFraction());
-                itemView.setRotationY(180 * animation.getAnimatedFraction());
-                itemView.setAlpha(animation.getAnimatedFraction());
+                bezierView.getView().setX(pointF.x);
+                bezierView.getView().setY(pointF.y);
+                //TODO 这里可以定制各种各样的动画
+                //   bezierView.getView().setRotationX(360 * animation.getAnimatedFraction());
+                //   bezierView.getView().setRotationY(180 * animation.getAnimatedFraction());
+                //   bezierView.getView().setAlpha(animation.getAnimatedFraction());
             }
         });
-        animator.setTarget(itemView);
-        animator.setDuration(container.getProperty().getDuration());
+        animator.setTarget(bezierView.getView());
+        animator.setDuration(bezierView.getDuration());
         return animator;
     }
 
@@ -110,18 +106,5 @@ public class AnimatorHelper {
             int index = random.nextInt(InterpolatorSets.values().length);
             return values()[index].mInterpolator;
         }
-    }
-
-    private static PointF getPointF(BezierLayout container, int index, Random random) {
-        PointF pointF = new PointF();
-        // 波动的范围在layout内部，也可以波动出去
-        pointF.x = random.nextInt(container.getMeasuredWidth());
-        // 为了向上波动，故保证 point2.y < point1.y
-        int height = random.nextInt(container.getMeasuredHeight() / 2);
-        if (index == 1) {
-            height += container.getMeasuredHeight() / 2;
-        }
-        pointF.y = height;
-        return pointF;
     }
 }

@@ -42,7 +42,7 @@ public class KeyframeActivity extends AppCompatActivity {
         PropertyValuesHolder ivWidthPvh = PropertyValuesHolder.ofKeyframe("width", kf0, kf1, kf2, kf3, kf4);
         PropertyValuesHolder ivHeightPvh = PropertyValuesHolder.ofKeyframe("height", kf0, kf1, kf2, kf3, kf4);
         ObjectAnimator ivAnim = ObjectAnimator.ofPropertyValuesHolder(new ViewWrapper(mDisplayIv), ivWidthPvh, ivHeightPvh);
-        //这种方式再vivo机型上有bug，执行一段时间有可能就停止了．
+        //这种方式在vivo机型上有bug，执行一段时间有可能就停止了．
         ivAnim.setRepeatCount(ObjectAnimator.INFINITE);
         ivAnim.setRepeatMode(ObjectAnimator.REVERSE);
         ivAnim.setDuration(2000);
