@@ -58,7 +58,7 @@ public class BezierActivity extends Activity {
     }
 
     public void speedDown(View view) {
-        mBezierLayout.getProperty().delInterval();
+        mBezierLayout.getProperty().decInterval();
     }
 
     @Override

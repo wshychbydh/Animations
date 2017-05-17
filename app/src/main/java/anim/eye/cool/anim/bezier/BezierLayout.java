@@ -22,7 +22,7 @@ public class BezierLayout extends RelativeLayout {
 
     public BezierLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
-        //FIXME 这里还可以增加在xml里面直接设置相关属性，此处省略．
+        //FIXME 通过xml来设置相关属性，此处省略．
         mProperty = new Property();
     }
 
@@ -31,7 +31,7 @@ public class BezierLayout extends RelativeLayout {
     }
 
     private void addBezierView() {
-        BezierFactory.addBezierView(this, mProperty.mAnimationListener);
+        BezierFactory.addBezierView(this);
         if (mProperty.mRecycle) {
             mHandler.sendEmptyMessageDelayed(0, mProperty.mInterval);
         }
@@ -46,6 +46,7 @@ public class BezierLayout extends RelativeLayout {
     });
 
     public void start() {
+        if (mProperty.mRunning) return;
         mHandler.removeMessages(0);
         mProperty.mRunning = true;
         addBezierView();
@@ -56,17 +57,23 @@ public class BezierLayout extends RelativeLayout {
         mHandler.removeMessages(0);
     }
 
+    /**
+     * 恢复暂停的动画
+     */
     public void onResume() {
         if (mProperty.mRunning) start();
     }
 
+    /**
+     * 暂停动画
+     */
     public void onPause() {
         mHandler.removeMessages(0);
     }
 
     @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
         if (mProperty.mAutoRunning) start();
     }
 
@@ -83,12 +90,12 @@ public class BezierLayout extends RelativeLayout {
         private final static int MAX_DURATION = 5000;
         private final static int MIN_DURATION = 1000;
 
-        private boolean mAutoRunning = false; // 是否自动开启动画
-        private boolean mRecycle = true; // 是否循环发送
-        private volatile int mInterval = 500; // 每间隔多少秒发射一个
-        private volatile int mDuration = 3000; // 动画执行的时间
+        private boolean mAutoRunning = true; // 是否自动开启动画
+        private boolean mRecycle = true; // 是否循环播放子动画
+        private int mInterval = 500; // 每间隔多少毫秒执行一次子动画
+        private int mDuration = 3000; // 每个子动画执行的时间
 
-        private volatile boolean mRunning = false; //是否正在执行
+        private boolean mRunning = false; //是否正在执行
 
         @Nullable
         private Animator.AnimatorListener mAnimationListener;
@@ -116,7 +123,7 @@ public class BezierLayout extends RelativeLayout {
             }
         }
 
-        public void delDuration() {
+        public void decDuration() {
             if (mRunning) {
                 mDuration += 1000;
                 mDuration = mDuration > MAX_DURATION ? MAX_DURATION : mDuration;
@@ -130,7 +137,7 @@ public class BezierLayout extends RelativeLayout {
             }
         }
 
-        public void delInterval() {
+        public void decInterval() {
             if (mRunning) {
                 mInterval += 100;
                 mInterval = mInterval > MAX_INTERVAL ? MAX_INTERVAL : mInterval;

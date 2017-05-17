@@ -22,7 +22,7 @@ public final class BezierEvaluator implements TypeEvaluator<PointF> {
     public PointF evaluate(float fraction, PointF startValue, PointF endValue) {
 
         // 贝塞尔曲线的公式
-        // fraction取值0~1,每次估值大约0.005递增
+        // fraction取值0~1
         float temp = 1 - fraction;
         PointF pointF = new PointF();
         pointF.x = startValue.x * temp * temp * temp + 3 * mPointF1.x * fraction

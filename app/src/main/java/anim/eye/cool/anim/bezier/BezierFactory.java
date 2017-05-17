@@ -7,8 +7,6 @@ import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
@@ -39,7 +37,7 @@ public final class BezierFactory {
      * @param container
      * @return
      */
-    public static BezierView addBezierView(@NonNull final BezierLayout container, @Nullable Animator.AnimatorListener listener) {
+    public static BezierView addBezierView(@NonNull final BezierLayout container) {
         final ImageView iv = new ImageView(container.getContext());
         Drawable drawable = container.getResources().getDrawable(BEZIER_RES[mRandom.nextInt(BEZIER_RES.length)]);
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
@@ -50,7 +48,7 @@ public final class BezierFactory {
         BezierView bezierView = new BezierView();
         bezierView.setView(iv);
         bezierView.setActiveRect(new Rect(0, container.getMeasuredWidth(), 0, container.getMeasuredHeight()));
-        bezierView.setPointF(getBezierPoints(container.getMeasuredWidth(), container.getMeasuredHeight(), iv));
+        bezierView.setPointF(getBezierPoints(container.getMeasuredWidth(), container.getMeasuredHeight(), iv.getMeasuredHeight()));
         bezierView.setDuration(container.getProperty().getDuration());
         AnimatorSet set = BezierAnimationHelper.getAnimatorSet(bezierView, mRandom);
         set.addListener(new AnimatorListenerAdapter() {
@@ -61,6 +59,7 @@ public final class BezierFactory {
                 container.removeView(iv);
             }
         });
+        Animator.AnimatorListener listener = container.getProperty().getAnimationListener();
         if (listener != null) set.addListener(listener);
         container.addView(iv);
         bezierView.setAnimatorSet(set);
@@ -68,10 +67,15 @@ public final class BezierFactory {
         return bezierView;
     }
 
-    private static PointF[] getBezierPoints(int activeWidth, int activeHeight, View view) {
+    /**
+     * @param activeWidth
+     * @param activeHeight
+     * @param viewHeight   子view的高度
+     * @return
+     */
+    private static PointF[] getBezierPoints(int activeWidth, int activeHeight, int viewHeight) {
         // 贝塞尔曲线的4个点
-        PointF pointF0 = new PointF((activeWidth - view.getMeasuredWidth()) / 2,
-                activeHeight - view.getMeasuredHeight());
+        PointF pointF0 = new PointF(mRandom.nextInt(activeWidth), activeHeight - viewHeight);
         PointF pointF1 = getBezierPointF(activeWidth, activeHeight, 1);
         PointF pointF2 = getBezierPointF(activeWidth, activeHeight, 2);
         PointF pointF3 = new PointF(mRandom.nextInt(activeWidth), 0);
@@ -81,7 +85,11 @@ public final class BezierFactory {
     private static PointF getBezierPointF(int activeWidth, int activeHeight, int index) {
         PointF pointF = new PointF();
         // 波动的范围在0~activeWidth之间，也可以波动出去
-        pointF.x = mRandom.nextInt(activeWidth);
+        pointF.x = mRandom.nextInt(activeWidth / 2);
+        if (index == 2) {
+            //point2在右半屏
+            pointF.x += activeWidth / 2;
+        }
         // 为了向上波动，故 point2.y < point1.y
         int height = mRandom.nextInt(activeHeight / 2);
         if (index == 1) {
