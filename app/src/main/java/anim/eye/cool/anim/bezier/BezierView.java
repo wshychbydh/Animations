@@ -9,7 +9,7 @@ import android.view.View;
  * Created by cool on 17-5-10.
  */
 
-public class BezierView {
+public class BezierView { // TODO edward 名字取的不合适。看代码的话，这里是希望把一个 view 与相应的动画属性存在一起。
 
     private View mView;  //执行动画的view
 
@@ -19,7 +19,7 @@ public class BezierView {
 
     private int mDuration;  //执行动画时间
 
-    private AnimatorSet mAnimatorSet;
+    private AnimatorSet mAnimatorSet; // TODO edward 这个并没有用到
 
     public int getDuration() {
         return mDuration;
@@ -61,7 +61,7 @@ public class BezierView {
         mView = view;
     }
 
-    public int getActiveWith() {
+    public int getActiveWith() { // TODO edward With -> Width
         return mActiveRect.right - mActiveRect.left;
     }
 

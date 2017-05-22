@@ -31,6 +31,7 @@ public final class BezierAnimationHelper {
     public static final String ROTATION_Y = "rotationY";
 
     public static AnimatorSet getAnimatorSet(BezierView bezierView, Random random) {
+        // TODO edward 这里并不需要 random 这个依赖。我猜是为了重复利用 random 来达到提升性能的目的。
         // 1.alpha动画
         ObjectAnimator alpha = ObjectAnimator.ofFloat(bezierView.getView(), ALPHA, 0.5f, 1f);
         // 2.缩放动画
@@ -90,10 +91,16 @@ public final class BezierAnimationHelper {
 
 
     private enum InterpolatorSets {
-        ACCELERATE(new AccelerateInterpolator()), DECELERATE(new DecelerateInterpolator()),
-        LINEAR(new LinearInterpolator()), ACCELERATE_DECELERATE(new AccelerateDecelerateInterpolator()),
-        ANTICIPATE_OVERSHOOT(new AnticipateOvershootInterpolator()), CYCLE(new CycleInterpolator(-1)),
-        OVERSHOOT(new OvershootInterpolator()), BOUNCE(new BounceInterpolator()),
+        // TODO edward enum 最好是每行一个
+        // TODO edward 其实这里用 enum 并不是一个好主意。从这里的使用方式来看，你只是需要一个随机加速因子的生成器。比如 generate random interpolator
+        ACCELERATE(new AccelerateInterpolator()),
+        DECELERATE(new DecelerateInterpolator()),
+        LINEAR(new LinearInterpolator()),
+        ACCELERATE_DECELERATE(new AccelerateDecelerateInterpolator()),
+        ANTICIPATE_OVERSHOOT(new AnticipateOvershootInterpolator()),
+        CYCLE(new CycleInterpolator(-1)),
+        OVERSHOOT(new OvershootInterpolator()),
+        BOUNCE(new BounceInterpolator()),
         ANTICIPATE(new AnticipateInterpolator());
 
         InterpolatorSets(Interpolator interpolator) {

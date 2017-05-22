@@ -38,6 +38,7 @@ public final class BezierFactory {
      * @return
      */
     public static BezierView addBezierView(@NonNull final BezierLayout container) {
+        // TODO edward 这个方法里面做了太多种类的事
         final ImageView iv = new ImageView(container.getContext());
         Drawable drawable = container.getResources().getDrawable(BEZIER_RES[mRandom.nextInt(BEZIER_RES.length)]);
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
@@ -47,6 +48,7 @@ public final class BezierFactory {
         iv.setImageDrawable(drawable);
         BezierView bezierView = new BezierView();
         bezierView.setView(iv);
+        // TODO edward 为什么不用 container.getWidth, gitHeight
         bezierView.setActiveRect(new Rect(0, container.getMeasuredWidth(), 0, container.getMeasuredHeight()));
         bezierView.setPointF(getBezierPoints(container.getMeasuredWidth(), container.getMeasuredHeight(), iv.getMeasuredHeight()));
         bezierView.setDuration(container.getProperty().getDuration());
@@ -75,6 +77,7 @@ public final class BezierFactory {
      */
     private static PointF[] getBezierPoints(int activeWidth, int activeHeight, int viewHeight) {
         // 贝塞尔曲线的4个点
+        // TODO edward 这部分的逻辑并没有体现出来
         PointF pointF0 = new PointF(mRandom.nextInt(activeWidth), activeHeight - viewHeight);
         PointF pointF1 = getBezierPointF(activeWidth, activeHeight, 1);
         PointF pointF2 = getBezierPointF(activeWidth, activeHeight, 2);

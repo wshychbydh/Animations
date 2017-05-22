@@ -13,6 +13,7 @@ import android.widget.RelativeLayout;
  * Created by cool on 17-5-10.
  */
 public class BezierLayout extends RelativeLayout {
+    // TODO edward 这里继承 relativelayout 并没有实际意义。因为其中做的事情，和 layout 并没有关系，并不需要去修改 Relativelayout。用组合的方式就行。
 
     private Property mProperty;
 
@@ -31,7 +32,7 @@ public class BezierLayout extends RelativeLayout {
     }
 
     private void addBezierView() {
-        BezierFactory.addBezierView(this);
+        BezierFactory.addBezierView(this); // TODO edward 职责单一原则。Factory 就负责创建 View。而不应该对 Container 有依赖。
         if (mProperty.mRecycle) {
             mHandler.sendEmptyMessageDelayed(0, mProperty.mInterval);
         }
@@ -83,7 +84,8 @@ public class BezierLayout extends RelativeLayout {
         super.onDetachedFromWindow();
     }
 
-    public class Property {
+    // TODO 喜欢把属性提出来，需要用链式调用来进行属性设置
+    public class Property { // TODO edward 可读性变好了。但是并不适合集成或者扩展。
         private final static int MAX_INTERVAL = 1000;
         private final static int MIN_INTERVAL = 100;
 
@@ -116,7 +118,7 @@ public class BezierLayout extends RelativeLayout {
             return mInterval;
         }
 
-        public void addDuration() {
+        public void addDuration() { // TODO edward why -1000 in add? Same problems below.
             if (mRunning) {
                 mDuration -= 1000;
                 mDuration = mDuration < MIN_DURATION ? MIN_DURATION : mDuration;
@@ -145,6 +147,7 @@ public class BezierLayout extends RelativeLayout {
         }
 
         public Property setInterval(int interval) {
+            // TODO edward 在 builder 中可以使用。
             this.mInterval = interval;
             return this;
         }

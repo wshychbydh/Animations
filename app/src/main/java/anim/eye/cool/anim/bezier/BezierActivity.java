@@ -64,7 +64,7 @@ public class BezierActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        mBezierLayout.onResume();
+        mBezierLayout.onResume(); // TODO edward 3.0 以后会有更好的生命周期管理，有空可以研究一下。
     }
 
     @Override

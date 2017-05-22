@@ -11,7 +11,7 @@ import android.graphics.PointF;
  */
 public final class BezierEvaluator implements TypeEvaluator<PointF> {
 
-    private PointF mPointF1, mPointF2;
+    private PointF mPointF1, mPointF2; // TODO edward 这两个点是用来干什么的
 
     public BezierEvaluator(PointF pointF1, PointF pointF2) {
         this.mPointF1 = pointF1;
