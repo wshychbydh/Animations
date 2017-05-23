@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import anim.eye.cool.anim.R;
@@ -13,7 +14,7 @@ import anim.eye.cool.anim.R;
  */
 public class BezierActivity extends Activity {
 
-    private BezierLayout mBezierLayout;
+    private BezierAnimationController mBezierAnimationController = new BezierAnimationController();
     private TextView mCountTv;
     private volatile int mCount;
 
@@ -21,9 +22,10 @@ public class BezierActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bezier);
-        mBezierLayout = (BezierLayout) findViewById(R.id.bezier_container);
+        RelativeLayout container = (RelativeLayout) findViewById(R.id.bezier_container);
         mCountTv = (TextView) findViewById(R.id.tv_count);
-        mBezierLayout.getProperty().setAnimationListener(new Animator.AnimatorListener() {
+        mBezierAnimationController.setContainer(container );
+        mBezierAnimationController.setAnimationListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
                 mCountTv.setText("共执行了" + ++mCount + "次动画．");
@@ -43,33 +45,27 @@ public class BezierActivity extends Activity {
 
             }
         });
-    }
 
-    public void start(View v) {
-        mBezierLayout.start();
-    }
-
-    public void stop(View v) {
-        mBezierLayout.stop();
+        mBezierAnimationController.start();
     }
 
     public void speedUp(View view) {
-        mBezierLayout.getProperty().addInterval();
+        mBezierAnimationController.decInterval();
     }
 
     public void speedDown(View view) {
-        mBezierLayout.getProperty().decInterval();
+        mBezierAnimationController.incInterval();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        mBezierLayout.onResume(); // TODO edward 3.0 以后会有更好的生命周期管理，有空可以研究一下。
+        mBezierAnimationController.start(); // TODO edward 3.0 以后会有更好的生命周期管理，有空可以研究一下。
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        mBezierLayout.onPause();
+        mBezierAnimationController.stop();
     }
 }
