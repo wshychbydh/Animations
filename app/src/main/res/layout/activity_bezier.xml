@@ -42,7 +42,7 @@
     </LinearLayout>
 
 
-    <anim.eye.cool.anim.bezier.BezierLayout
+    <RelativeLayout
         android:id="@+id/bezier_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
